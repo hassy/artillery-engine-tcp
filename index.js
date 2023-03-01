@@ -1,4 +1,5 @@
 'use strict';
+const { encode, decode } = require('@msgpack/msgpack');
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -74,7 +75,14 @@ TCPEngine.prototype.step = function step (rs, ee, opts) {
     return function send (context, callback) {
       const payload = typeof rs.send.payload === 'object'
             ? JSON.stringify(rs.send.payload) : rs.send.payload;
-      const buff = Buffer.from(payload, rs.send.encoding);
+
+      let buff;
+      if (rs.send.encoding && rs.send.encoding === 'msgpack') {
+        buff = encode(rs.send.payload);
+        console.log({buff, decoded: decode(buff)});
+      } else {
+        buff = Buffer.from(payload, rs.send.encoding);
+      }
 
       const onError = err => {
         debug('Send error');
