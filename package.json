@@ -25,6 +25,7 @@
     "tape": "^4.6.3"
   },
   "dependencies": {
+    "@msgpack/msgpack": "^2.8.0",
     "artillery-core": "^4.6.0",
     "async": "^1.5.2",
     "debug": "^2.6.6",
