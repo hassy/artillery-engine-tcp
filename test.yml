@@ -1,0 +1,36 @@
+config:
+  target: "localhost"
+  tcp:
+    port: 8000
+  phases:
+    - arrivalCount: 1
+      duration: 1
+  engines:
+    tcp:
+      ca: "./ca-crt.pem"
+      key: "./client1-key.pem"
+      cert: "./client1-crt.pem"
+      rejectUnauthorized: false
+      requestCert: true
+
+scenarios:
+  - name: "Send data"
+    engine: tcp
+    flow:
+      - count: 1
+        loop:
+        - send:
+            payload:
+              nil: null
+              integer: 1
+              string: "Hello world"
+              array: [10, 20, 30]
+              map: { foo: "bar" }
+            encoding: "msgpack"
+        - send:
+            payload: "hello world"
+        - think: 1
+        - send:
+            payload: "1111111111"
+            encoding: "hex"
+        - think: 1
