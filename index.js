@@ -4,7 +4,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+ const fs = require('fs');
 const net = require('net');
+const tls = require('tls');
 const debug = require('debug')('engine:tcp');
 const A = require('async');
 const _ = require('lodash');
@@ -112,7 +114,18 @@ TCPEngine.prototype.compile = function compile (tasks, scenarioSpec, ee) {
   const self = this;
   return function scenario (initialContext, callback) {
     const init = function init (next) {
-      initialContext.client = net.createConnection(self.script.config.tcp.port, self.script.config.target)
+      // initialContext.client = net.createConnection(self.script.config.tcp.port, self.script.config.target)
+      // TODO: read paths relative to location of the test script
+      const options = {
+        ca: fs.readFileSync('ca-crt.pem'),
+        key: fs.readFileSync('client1-key.pem'),
+        cert: fs.readFileSync('client1-crt.pem'),
+        host: self.script.config.target,
+        port: self.script.config.tcp.port,
+        rejectUnauthorized: false,
+        // requestCert: true
+      };
+      initialContext.client = tls.connect(options);
       ee.emit('started');
       return next(null, initialContext);
     };
